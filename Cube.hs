@@ -47,7 +47,7 @@ defaultOrientation = Map.fromList
 data Cubie = Cubie { home :: CubePos
                    , orientation :: Int
                    }
-    deriving (Eq)
+    deriving (Eq, Show)
 
 data Cube = Cube { cubies :: Map.Map CubePos Cubie, cubeOrientation :: CubeOrientation }
     deriving (Eq)
@@ -166,50 +166,26 @@ moveTable = Map.fromList (basic ++ map invert basic) where
                     , (UB, RB, 0)
                     , (RB, DB, 0)
                     ], []))
-            , (M, ([ (UF, UB, 0)
-                    , (DF, UF, 0)
-                    , (DB, DF, 0)
-                    , (UB, DB, 0)
-                    , (URB, URB, 1)
-                    , (DBR, DBR, 2)
-                    , (DRF, DRF, 1)
-                    , (UFR, UFR, 2)
-                    , (UR, UR, 1)
-                    , (RB, RB, 1)
-                    , (DR, DR, 1)
-                    , (RF, RF, 1)
-                    , (ULF, ULF, 1)
-                    , (DFL, DFL, 2)
-                    , (DLB, DLB, 1)
-                    , (UBL, UBL, 2)
-                    , (LF, LF, 1)
-                    , (DL, DL, 1)
-                    , (LB, LB, 1)
-                    , (UL, UL, 1)
+            , (M, ([ (UF, UB, 1)
+                    , (DF, UF, 1)
+                    , (DB, DF, 1)
+                    , (UB, DB, 1)
                     ], [ ('U', 'B')
                         , ('F', 'U')
                         , ('D', 'F')
                         , ('B', 'D') ]))
-            , (E, ([ (LF, LB, 0)
-                    , (RF, LF, 0)
-                    , (RB, RF, 0)
-                    , (LB, RB, 0)
+            , (E, ([ (LF, LB, 1)
+                    , (RF, LF, 1)
+                    , (RB, RF, 1)
+                    , (LB, RB, 1)
                     ], [ ('F', 'L')
                         , ('R', 'F')
                         , ('B', 'R')
                         , ('L', 'B') ]))
-            , (S, ([ (UL, DL, 0)
-                    , (UR, UL, 0)
-                    , (DR, UR, 0)
-                    , (DL, DR, 0)
-                    , (DLB, DLB, 2)
-                    , (DBR, DBR, 1)
-                    , (URB, URB, 2)
-                    , (UBL, UBL, 1)
-                    , (ULF, ULF, 2)
-                    , (UFR, UFR, 1)
-                    , (DRF, DRF, 2)
-                    , (DFL, DFL, 1)
+            , (S, ([ (UL, DL, 1)
+                    , (UR, UL, 1)
+                    , (DR, UR, 1)
+                    , (DL, DR, 1)
                     ], [ ('U', 'L')
                         , ('R', 'U')
                         , ('D', 'R')
@@ -232,17 +208,20 @@ applyMove mv cube@(Cube m o) = case Map.lookup mv redundantMoves of
     Just alg -> applyAlgorithm alg cube
     Nothing  -> Cube m' o' where
         (t, t') = extractJust $ Map.lookup mv moveTable
-        m' = Map.map (changeHome (map Tuple.swap t')) $ foldl helper m t
+        m' = Map.map (updateCubie (map Tuple.swap t')) $ foldl helper m t
         helper m (dst, src, twist) =
             let (Cubie h o) = cubieAt src cube
                 modulus = twistModulus h
                 newCubie = Cubie h ((o + twist) `mod` modulus)
             in
                 Map.insert dst newCubie m
-        changeHome t' (Cubie h o) = 
-            let newPos = strToCubePos $ map (\d -> fromMaybe d $ lookup d t') $ show h
+        updateCubie t' (Cubie h o) = 
+            let newHome = strToCubePos $ map (\d -> fromMaybe d $ lookup d t') $ show h
+                oldRefFacelet = show h !! o
+                newRefFacelet = fromMaybe oldRefFacelet $ lookup oldRefFacelet t'
+                newOrientation = extractJust $ List.elemIndex newRefFacelet (show newHome)
             in
-                Cubie newPos o
+                Cubie newHome newOrientation
         o' = foldl (\m (d, s) -> Map.insert d (extractJust $ Map.lookup s o) m) o t'
 
 applyAlgorithm :: Algorithm -> Cube -> Cube
