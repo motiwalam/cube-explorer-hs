@@ -2,12 +2,8 @@ module Cube where
 
 import qualified Data.Map as Map
 import qualified Data.List as List
-import qualified Data.Tuple as Tuple
-import Data.Maybe (fromMaybe)
-
-extractJust :: Maybe a -> a
-extractJust Nothing = undefined
-extractJust (Just x) = x
+import Data.Tuple ( swap )
+import Data.Maybe (fromMaybe, fromJust)
 
 data CubePos = UBL | URB | ULF | UFR
              | DLB | DBR | DFL | DRF
@@ -53,7 +49,7 @@ data Cube = Cube { cubies :: Map.Map CubePos Cubie, cubeOrientation :: CubeOrien
     deriving (Eq)
 
 cubieAt :: CubePos -> Cube -> Cubie
-cubieAt p (Cube m _) = extractJust $ Map.lookup p m
+cubieAt p (Cube m _) = fromJust $ Map.lookup p m
 
 solvedCube :: Cube
 solvedCube = Cube (Map.fromList $ map (\p -> (p, Cubie { home=p, orientation=0 })) allCubies) defaultOrientation
@@ -81,7 +77,7 @@ data Move = U | U' | U2
           | X | X' | X2
           | Y | Y' | Y2
           | Z | Z' | Z2
-    deriving (Eq, Show, Ord, Enum)
+    deriving (Eq, Show, Ord, Enum, Read)
 
 type Algorithm = [Move]
 
@@ -110,7 +106,7 @@ twistModulus p
 
 moveTable :: Map.Map Move ([(CubePos, CubePos, Int)], [(Face, Face)])
 moveTable = Map.fromList (basic ++ map invert basic) where
-    invert (m, (s, o)) = (inverseOfMove m, (map (\(d, s, t) -> (s, d, (-t) `mod` twistModulus s)) s, map Tuple.swap o))
+    invert (m, (s, o)) = (inverseOfMove m, (map (\(d, s, t) -> (s, d, (-t) `mod` twistModulus s)) s, map swap o))
 
     basic = [ (U, ([ (UBL, ULF, 0)
                     , (URB, UBL, 0)
@@ -207,8 +203,8 @@ applyMove :: Move -> Cube -> Cube
 applyMove mv cube@(Cube m o) = case Map.lookup mv redundantMoves of
     Just alg -> applyAlgorithm alg cube
     Nothing  -> Cube m' o' where
-        (t, t') = extractJust $ Map.lookup mv moveTable
-        m' = Map.map (updateCubie (map Tuple.swap t')) $ foldl helper m t
+        (t, t') = fromJust $ Map.lookup mv moveTable
+        m' = Map.map (updateCubie (map swap t')) $ foldl helper m t
         helper m (dst, src, twist) =
             let (Cubie h o) = cubieAt src cube
                 modulus = twistModulus h
@@ -219,10 +215,10 @@ applyMove mv cube@(Cube m o) = case Map.lookup mv redundantMoves of
             let newHome = strToCubePos $ map (\d -> fromMaybe d $ lookup d t') $ show h
                 oldRefFacelet = show h !! o
                 newRefFacelet = fromMaybe oldRefFacelet $ lookup oldRefFacelet t'
-                newOrientation = extractJust $ List.elemIndex newRefFacelet (show newHome)
+                newOrientation = fromJust $ List.elemIndex newRefFacelet (show newHome)
             in
                 Cubie newHome newOrientation
-        o' = foldl (\m (d, s) -> Map.insert d (extractJust $ Map.lookup s o) m) o t'
+        o' = foldl (\m (d, s) -> Map.insert d (fromJust $ Map.lookup s o) m) o t'
 
 applyAlgorithm :: Algorithm -> Cube -> Cube
 applyAlgorithm ms c = foldl (flip applyMove) c ms
@@ -254,18 +250,18 @@ faces = Map.fromList
 
 indexForFace :: Map.Map (Face, CubePos) Int
 indexForFace = Map.fromList $
-    [((f,p), extractJust $ List.elemIndex f (show p)) | (f, ps) <- Map.toList faces, p <- ps]
+    [((f,p), fromJust $ List.elemIndex f (show p)) | (f, ps) <- Map.toList faces, p <- ps]
 
 cubieColorAt :: Cubie -> CubePos -> Face -> Color
 cubieColorAt (Cubie h o) pos face =
-    let i = extractJust $ Map.lookup (face, pos) indexForFace
+    let i = fromJust $ Map.lookup (face, pos) indexForFace
         m = twistModulus pos
     in
         colorOf h ((o + i) `mod` m)
 
 faceDesc :: Cube -> Face -> [String]
 faceDesc cube face =
-    let positions = extractJust $ Map.lookup face faces
+    let positions = fromJust $ Map.lookup face faces
         cubieColors = map (\p -> cubieColorAt (cubieAt p cube) p face) positions
         faceString = take 4 cubieColors ++ [face] ++ drop 4 cubieColors
     in
@@ -297,8 +293,8 @@ cubeDescColor cube@(Cube _ faceColors) =
         colorize ' ' = "  "
         colorize '\n' = "\n"
         colorize face = 
-            let faceColor = extractJust (Map.lookup face faceColors) 
-                ansiColor = extractJust (Map.lookup faceColor ansiColors)
+            let faceColor = fromJust (Map.lookup face faceColors) 
+                ansiColor = fromJust (Map.lookup faceColor ansiColors)
             in 
                 ansiColor ++ "  \x1b[49m"
     in
