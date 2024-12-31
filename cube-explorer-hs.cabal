@@ -28,7 +28,6 @@ library
       Cube
       CubeInteract
       CubeProps
-      Lib
       PartialCube
   other-modules:
       Paths_cube_explorer_hs
