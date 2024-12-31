@@ -1,14 +1,10 @@
 module CubeInteract where
 
-import Data.List (dropWhileEnd)
-import Data.Char (isSpace)
 import Text.Read (readMaybe)
 import System.IO ( hFlush, stdout )
 
 import Cube
-
-trim :: String -> String
-trim = dropWhileEnd isSpace . dropWhile isSpace
+import Util (trim)
 
 helpText :: String
 helpText = "Use \"q\" or \"quit\" to exit.\n" ++

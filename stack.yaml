@@ -17,8 +17,8 @@
 #
 # snapshot: ./custom-snapshot.yaml
 # snapshot: https://example.com/snapshots/2024-01-01.yaml
-snapshot: ghc-9.10.1
-  # url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/23/2.yaml
+snapshot:
+  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/refs/heads/master/nightly/2024/12/31.yaml
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -40,7 +40,8 @@ packages:
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 #
-# extra-deps: []
+extra-deps: 
+# - req-3.13.4@sha256:36f11d9a73c385651e78a8b7d61a03a719fa70f47ea284a95e87e7bd6b5f5842,3818
 
 # Override default flag values for project packages and extra-deps
 # flags: {}
