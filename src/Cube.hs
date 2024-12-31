@@ -194,7 +194,7 @@ redundantMoves = Map.fromList
     , (R2, [R, R]), (F2, [F, F]), (B2, [B, B])
     , (M2, [M, M]), (E2, [E, E]), (S2, [S, S])
     , (X2, [X, X]), (Y2, [Y, Y]), (Z2, [Z, Z])
-    , (X, [R, L', M']), (X', [M, L, R])
+    , (X, [R, L', M']), (X', [M, L, R'])
     , (Y, [U, D', E']), (Y', [E, D, U'])
     , (Z, [F, B', S]), (Z', [S', B, F'])
     ]
