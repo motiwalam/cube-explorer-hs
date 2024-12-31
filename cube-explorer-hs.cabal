@@ -27,7 +27,9 @@ library
   exposed-modules:
       Cube
       CubeInteract
+      CubeProps
       Lib
+      PartialCube
   other-modules:
       Paths_cube_explorer_hs
   autogen-modules:
