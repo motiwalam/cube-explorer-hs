@@ -14,10 +14,12 @@ newtype PartialCubie = PartialCubie {
                                  -- has length 2 if position is edge, length 3 if position is corner
                                  pVisible :: [(Face, Color)] 
                                  }
+    deriving (Eq, Show)
 
 data PartialCube = PartialCube { pCubies :: Map.Map CubePos PartialCubie
                                , pOrientation :: CubeOrientation
                                }
+    deriving (Eq, Show)
 
 cubieMatchesVisibleAt :: Cubie -> [(Face, Color)] -> CubePos -> Bool
 cubieMatchesVisibleAt cubie visible pos = all (\(f, c) -> cubieColorAt cubie pos f == c) visible
