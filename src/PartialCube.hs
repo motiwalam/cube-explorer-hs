@@ -2,7 +2,7 @@ module PartialCube where
 
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
-import Data.List ((\\), delete, intersect)
+import Data.List ((\\), delete, intersect, sortBy)
 import Control.Monad (guard)
 
 import Cube
@@ -55,8 +55,7 @@ fillHomes :: PartialCube -> [Cube]
 fillHomes pc = map snd $ fillAllIn initiallyAvailable positionsToFill emptyCube where
     initiallyAvailable = allCubies
     
-    partialPositions = Map.keys $ pCubies pc
-
+    partialPositions = map fst $ sortBy (\(_,(PartialCubie v1)) (_, PartialCubie v2) -> length v2 `compare` length v1)  $ Map.toList $ pCubies pc
     positionsToFill = partialPositions ++ (allCubies \\ partialPositions)
 
     emptyCube :: Cube
