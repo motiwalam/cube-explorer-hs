@@ -11,9 +11,9 @@ import Cube (applyAlgorithm, solvedCube, cubeDescColor)
 import Data.List (intercalate)
 
 usage :: String -> String
-usage arg0 =
-    arg0 ++ " repl\t\t; interactive Rubik's cube\n" ++
-    arg0 ++ " <cube-desc>\t\t; print generator for <cube-desc>\n"
+usage arg0 = "USAGE:\n" ++
+    arg0 ++ " repl    ; interactive Rubik's cube\n" ++
+    arg0 ++ " <cube-desc>    ; print generator for <cube-desc>\n"
 
 printUsage :: IO ()
 printUsage = getProgName >>= return . usage >>= putStrLn
