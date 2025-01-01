@@ -71,8 +71,10 @@ queryCubeExplorer domain portNo desc = runReq defaultHttpConfig $ do
     let moveString = trim $ (!! 1) $ lines $ unpack $ responseBody resp
     return $ map read $ words moveString
 
-generatorForPartialCube :: PartialCube -> IO [Move]
-generatorForPartialCube pc = fmap inverseOfAlgorithm $ queryCubeExplorer "localhost" 8081 $ pack $ cubeExplorerDesc $ head $ completeCube pc
+generatorForPartialCube :: PartialCube -> IO (Maybe [Move])
+generatorForPartialCube pc = case completeCube pc of
+  [] -> return Nothing
+  (c:_) -> fmap (Just . inverseOfAlgorithm) $ queryCubeExplorer "localhost" 8081 $ pack $ cubeExplorerDesc c
 
-generatorForPartialDesc :: String -> IO [Move]
+generatorForPartialDesc :: String -> IO (Maybe [Move])
 generatorForPartialDesc = generatorForPartialCube . flip descToPartialCube defaultOrientation
