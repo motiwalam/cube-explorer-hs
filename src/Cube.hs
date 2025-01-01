@@ -32,12 +32,12 @@ type CubeOrientation = Map.Map Face Color
 defaultOrientation :: CubeOrientation
 -- front red, top white
 defaultOrientation = Map.fromList
-    [ ('U', 'W')
-    , ('D', 'Y')
-    , ('L', 'G')
-    , ('R', 'B')
-    , ('F', 'R')
-    , ('B', 'O')
+    [ ('U', 'Y')
+    , ('D', 'W')
+    , ('L', 'O')
+    , ('R', 'R')
+    , ('F', 'B')
+    , ('B', 'G')
     ]
 
 data Cubie = Cubie { home :: CubePos
