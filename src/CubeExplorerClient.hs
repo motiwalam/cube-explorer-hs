@@ -2,7 +2,7 @@
 
 module CubeExplorerClient where
 
-import Data.Char (toLower)
+import Data.Char (toLower, toUpper)
 import Network.HTTP.Req
 
 import Data.ByteString.Char8 (unpack)
@@ -13,7 +13,7 @@ import Data.Maybe (fromJust)
 
 import Cube
 import Util (trim)
-import PartialCube (PartialCube (..), PartialCubie (..), completeCube)
+import PartialCube (PartialCube (..), PartialCubie (..), completeCube, isCompatibleWith)
 
 
 faceOrder :: String
@@ -71,10 +71,28 @@ queryCubeExplorer domain portNo desc = runReq defaultHttpConfig $ do
     let moveString = trim $ (!! 1) $ lines $ unpack $ responseBody resp
     return $ map read $ words moveString
 
+queryCubeExplorerUOFT :: Text -> IO [Move]
+queryCubeExplorerUOFT desc = runReq defaultHttpConfig $ do
+    resp <- req
+                GET
+                (https "www.cs.toronto.edu" /: "~motiwala" /: "kociemba.cgi")
+                NoReqBody
+                bsResponse
+                (queryFlag desc)
+    let moveString = trim $ unpack $ responseBody resp
+    return $ map read $ words moveString
+
+simplifyGenerator :: PartialCube -> Cube -> [Move] -> [Move]
+simplifyGenerator pc c moves = go (solvedCube { cubeOrientation = cubeOrientation c }) moves [] where
+  go c [] acc = reverse acc
+  go c (x:xs) acc
+    | c `isCompatibleWith` pc = reverse acc
+    | otherwise = go (applyMove x c) xs (x:acc)
+
 generatorForPartialCube :: PartialCube -> IO (Maybe [Move])
 generatorForPartialCube pc = case completeCube pc of
   [] -> return Nothing
-  (c:_) -> fmap (Just . inverseOfAlgorithm) $ queryCubeExplorer "localhost" 8081 $ pack $ cubeExplorerDesc c
+  (c:_) -> fmap (Just . simplifyGenerator pc c . inverseOfAlgorithm) $ queryCubeExplorerUOFT $ pack $ map toUpper $ cubeExplorerDesc c
 
 generatorForPartialDesc :: String -> IO (Maybe [Move])
 generatorForPartialDesc = generatorForPartialCube . flip descToPartialCube defaultOrientation

@@ -1,4 +1,4 @@
-module Main (main) where
+module CubeExplorer.Main (main) where
 
 import Control.Exception (catch)
 import System.IO.Error (isEOFError)
